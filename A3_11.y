@@ -337,7 +337,6 @@ return qt;
 
 quad emit_un(char *result, char *arg1,opcodeType operator) // Operator
 {
-    line++;
 /* Assignment with Unary operator */
     quadPtr++;
     quad qt;
