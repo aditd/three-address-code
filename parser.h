@@ -31,6 +31,16 @@ typedef struct quad {
     
 } quad;
 
+typedef struct boolean {
+    int truelist[10];
+    int falselist[10];
+    int quadLoc;
+    
+} boolean;
+
+int * makelist(){
+    
+}
 // quad(op=MINUS,type=BIN,$$->name,$1->name,$1->name)
 /*
 char print_operator(opcodeType op) {
