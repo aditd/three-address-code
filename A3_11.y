@@ -53,7 +53,7 @@ symboltable symtab[NSYMS];
 primary_expression:
 IDENTIFIER { $$ = $1;}| // Simple identifier  // Integer or character constant string-literal this wILLL BE PROBLEM
 STRING_LIT |
-I_CONSTANT { $$ = gentemp(); $$->value = atoi($1->name); emit_assign($$->name, $1->name);} |
+I_CONSTANT { $$->name = $1->name;} |
 C_CONSTANT |
 '(' expression ')'
 ;
@@ -80,29 +80,29 @@ unary_operator:
 
 unary_expression: 
 postfix_expression {$$ = $1;}|
-'+' unary_expression {$$ = gentemp();
-emit_un($$->name, $2->name, '+');}|
+'+' unary_expression {$$ = gentemp(); 
+emit_un($$->name, $2->name, ADD);}|
 '-' unary_expression {$$ = gentemp();
-emit_un($$->name, $2->name, '-');}|
+emit_un($$->name, $2->name, MINUS);}|
 unary_operator unary_expression 
 ;
 
 multiplicative_expression: // Left associative operators 
 unary_expression {$$ = $1;}|
 multiplicative_expression '*' unary_expression {$$ = gentemp();
-emit_bin($$->name, $1->name, '*',$3->name);}|
+emit_bin($$->name, $1->name, MULT,$3->name);}|
 multiplicative_expression '/' unary_expression {$$ = gentemp();
-emit_bin($$->name, $1->name, '/',$3->name);}|
+emit_bin($$->name, $1->name, DIV,$3->name);}|
 multiplicative_expression '%' unary_expression {$$ = gentemp();
-emit_bin($$->name, $1->name, '%',$3->name);}
+emit_bin($$->name, $1->name, MOD,$3->name);}
 ;
 
 additive_expression: // Left associative operators 
 multiplicative_expression {$$ = $1;}|
 additive_expression '+' multiplicative_expression {$$ = gentemp();
-emit_bin($$->name, $1->name, '+',$3->name);}|
+emit_bin($$->name, $1->name, ADD,$3->name);}|
 additive_expression '-' multiplicative_expression {$$ = gentemp();
-emit_bin($$->name, $1->name, '-',$3->name);}
+emit_bin($$->name, $1->name, MINUS,$3->name);}
 ;
 
 
@@ -315,28 +315,46 @@ symboltable *gentemp() {
     return symlook(str); 
 }
 
-void emit_bin(char *s1, // Result
-char *s2, // Arg 1
-char c, // Operator
-char *s3) // Arg 2
+void emit_bin(char *result, // Result
+char *arg1, // Arg 1
+opcodeType operator, // Operator
+char *arg2) // Arg 2
 {
-/* Assignment with Binary operator */
-printf("\t%s = %s %c %s\n",s1, s2, c, s3);
+    quad qt;
+    qt.result = result;
+    qt.arg1 = arg1;
+    qt.arg2 = arg2;
+    qt.op = operator;
+    qt.type = BINARY;
+    /* Assignment with Binary operator */
+    printf("\t%s = %s %c %s\n",result, arg1, print_op(arg1), arg2);
+return qt;
 
 }
 
-void emit_un(char *s1, // Result
-char *s2, // Arg 1
-char c) // Operator
+void emit_un(char *result, // Result
+char *arg1, // Arg 1
+opcodeType operator) // Operator
 {
 /* Assignment with Unary operator */
-printf("\t%s = %c %s\n",s1, c, s2);
+    quad qt;
+    qt.result = result;
+    qt.arg1 = arg1
+    qt.op = operator;
+    qt.type = UNARY;
+    printf("\t%s = %c %s\n",qt.result, print_op(operator), s2);
+    return qt;
 }
 
-void emit_assign(char *s1, char *s2)
+void emit_assign(char *result, char *arg1)
 {
-/* Simple Assignment */
-printf("\t%s = %s\n",s1, s2);
+    /* Simple Assignment */
+    quad qt;
+    qt.result = result;
+    qt.arg1 = arg1;
+    qt.type = ASSIGN;
+    printf("\t%s = %s\n",result, arg1);
+    return qt;
 }
 
 /*
