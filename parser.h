@@ -32,6 +32,7 @@ typedef struct quad {
 } quad;
 
 // quad(op=MINUS,type=BIN,$$->name,$1->name,$1->name)
+/*
 char print_operator(opcodeType op) {
     switch (op) {
         case PLUS:
@@ -56,7 +57,7 @@ char print_operator(opcodeType op) {
     }
 } 
     
-
+*/
 
 /* Look-up Symbol Table */ 
 symboltable *symlook(char *);

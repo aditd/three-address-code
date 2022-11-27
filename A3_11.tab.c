@@ -1835,14 +1835,12 @@ char *arg2) // Arg 2
     qt.op = operator;
     qt.type = BINARY;
     /* Assignment with Binary operator */
-    printf("\t%d: %s = %s %c %s\n",quadPtr,result, arg1, print_operator(operator), arg2);
+    printf("\t%d: %s = %s %c %s\n",quadPtr,result, arg1, 'o', arg2);
 return qt;
 
 }
 
-quad emit_un(char *result, // Result
-char *arg1, // Arg 1
-opcodeType operator) // Operator
+quad emit_un(char *result, char *arg1,opcodeType operator) // Operator
 {
 /* Assignment with Unary operator */
     quadPtr++;
@@ -1851,7 +1849,7 @@ opcodeType operator) // Operator
     qt.arg1 = arg1;
     qt.op = operator;
     qt.type = UNARY;
-    printf("\t%d: %s = %c %s\n",quadPtr, qt.result, print_operator(operator), arg1);
+    printf("\t%d: %s = %c %s\n",quadPtr, qt.result, 'o', arg1);
     return qt;
 }
 
