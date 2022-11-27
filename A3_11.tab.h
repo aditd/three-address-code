@@ -81,7 +81,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 14 "A3_11.y"
+#line 16 "A3_11.y"
                  
     int intval;
     struct symtab *symp;    /* 2 */
