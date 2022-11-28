@@ -44,7 +44,7 @@ int quadPtr = 0;
 %type <symp> unary_expression
 %type <symp> multiplicative_expression
 %type <symp> additive_expression
-%type <relational_expression> additive_expression
+%type <boo> relational_expression
 %start translation_unit
 
 %%
@@ -114,8 +114,12 @@ emit_bin($$->name, $1->name, MINUS,$3->name);}
 
 
 relational_expression: // Left associative operators 
-additive_expression |
-relational_expression '<' additive_expression |
+additive_expression {$$=$1}|
+relational_expression '<' additive_expression {
+    //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
+    char *opt = "...";
+    emit_jump_cond($1->name, opcodeType operator,char *right, char *go)
+    emit_jump($1->name);}|
 relational_expression '>' additive_expression |
 relational_expression LE_OP additive_expression |
 relational_expression GE_OP additive_expression 
@@ -331,9 +335,10 @@ char *arg2) // Arg 2
     qt.arg1 = arg1;
     qt.arg2 = arg2;
     qt.op = operator;
+    qArray[quadPtr] = &qt;
     /* Assignment with Binary operator */
-    printf("\t%d: %s = %s %c %s\n",quadPtr,result, arg1, atoi(qt.op), arg2);
-return qt;
+    printf("\t%d: %s = %s %c %s\n",quadPtr,qArray[quadPtr]->result, qArray[quadPtr]->arg1, print_operator(qArray[quadPtr]->op), qArray[quadPtr]->arg2);
+    return qt;
 
 }
 
@@ -341,25 +346,28 @@ quad emit_jump(char *go) // Operator
 {
     quadPtr++;
     quad qt;
-    qt.arg2 = go;
+    qt.result = go;
     qt.op = JUMP;
+    qArray[quadPtr] = &qt;
     return qt;
 }
 
-quad emit_jump_cond(char *relexp, char *go) // Operator
+quad emit_jump_cond(char *left, opcodeType operator,char *right, char *go) // Operator
 {
 /* Assignment with Unary operator */
     quadPtr++;
     quad qt;
-    qt.arg1 = relexp;
-    Qt.arg2 = go;
-    qt.op = CONDITION;
-    printf("\t%d: if %s goto  %s\n",quadPtr, qt.arg1,  qt.arg2);
+    qt.arg1 = left;
+    qt.arg2 = right;
+    qt.op = operator;
+    qt.result = go;
+    qArray[quadPtr] = &qt;
+    printf("\t%d: if %s %c %s goto  %s\n",quadPtr, qt.arg1, print_operator(qt.op)  qt.result);
     return qt;
     
 }
 
-quad emit_un(char *result, char *arg1,opcodeType operator) // Operator
+quad emit_un(char *result, char *arg1, opcodeType operator) // Operator
 {
 /* Assignment with Unary operator */
     quadPtr++;
@@ -367,7 +375,8 @@ quad emit_un(char *result, char *arg1,opcodeType operator) // Operator
     qt.result = result;
     qt.arg1 = arg1;
     qt.op = operator;
-    printf("\t%d: %s = %c %s\n",quadPtr, qt.result, 'o', arg1);
+    qArray[quadPtr] = &qt;
+    printf("\t%d: %s = %c %s\n",quadPtr, qt.result, print_operator(op), arg1);
     return qt;
 }
 
@@ -381,7 +390,9 @@ quad emit_assign(char *result, char *arg1)
     quad qt;
     qt.result = result;
     qt.arg1 = arg1;
-    printf("\t%d: %s = %s\n",quadPtr,result, arg1);
+    qt.op = COPY;
+    qArray[quadPtr] = &qt;
+    printf("\t%d: %s = %s\n",quadPtr,qArray[quadPtr]->result, qArray[quadPtr]->arg1);
     return qt;
 }
 
@@ -393,7 +404,8 @@ int * makelist(int i){
     return arr;
 }
 
-int * backpatch(int *lis, int i){
+
+void backpatch(int *lis, int i){
     // we get a list with dangling exits and a line number i
     // arg2 is where the jump location is kept
     for(int i=0;i++;i<10){
@@ -408,8 +420,10 @@ int * backpatch(int *lis, int i){
 }
 
 int * merge_lists(int *l1,int *l2) {
+    // temp array
     int arr[10];
     int x=0;
+    // go through the whole array and add stuff
     for(int i =0;i++;i<10){
         if(l1[i].Function() == 0) break;
         arr[x] = l1[i]
@@ -420,9 +434,59 @@ int * merge_lists(int *l1,int *l2) {
         arr[x] = l2[i]
         x++;
     }
+    // return the merged array
     return arr;
 }
 
+char print_operator(opcodeType op) {
+    switch (op) {
+        case PLUS:
+            return '+';
+            break;
+        case MINUS:
+            //printf("-");
+            return '-';
+            break;
+        case MULT:
+            //printf("*");
+            return '*';
+            break;
+        case DIV:
+            //printf("/");
+            return '/';
+            break;
+        case MOD:
+            //printf("%");
+            return '%';
+            break;
+        case LE:
+            //printf("%");
+            return '<=';
+            break;
+        case GE:
+            //printf("%");
+            return '>=';
+            break;
+        case OR:
+            //printf("%");
+            return '||';
+            break;
+        case AND:
+            //printf("%");
+            return '&&';
+            break;
+        case LESS:
+            //printf("%");
+            return '<';
+            break;     
+        case MORE:
+            //printf("%");
+            return '>';
+            break;
+        default:
+            break
+    }
+} 
 /*
 void yyerror(char *s) { printf ("error %s\n", s);
 }
