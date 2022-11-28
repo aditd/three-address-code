@@ -11,21 +11,25 @@ typedef enum {
     MINUS, 
     MULT,
     MOD,
-    DIV
+    DIV,
+    CONDITION,
+    JUMP,
+    COPY
 } opcodeType;
 
-typedef enum { 
-    ASSIGN = 0,
-    UNARY, 
-    BINARY
-} operatortype;
+// typedef enum { 
+//     ASSIGN = 0,
+//     UNARY, 
+//     BINARY
+// } operatortype;
 
+// we might need to remove operatortype because it is supposed to be a quad
 typedef struct quad {
     opcodeType op;
-    operatortype type;
-    char * result;
-    char * arg1;
-    char * arg2;
+    //operatortype type;
+    char * result; 
+    char * arg1; // this can take the place of the relop thing for conditional jump
+    char * arg2; // this can be the jumpto location. the exit for jump
     // ONLY arg1 and result are there if COPY
     // ONLY arg1, op and result are there if UNARY
     
@@ -35,12 +39,15 @@ typedef struct boolean {
     int truelist[10];
     int falselist[10];
     int quadLoc;
-    
 } boolean;
 
-int * makelist(){
-    
-}
+// we can have the quad operator type set to jump
+// operatortype can be if
+// for if, have the arg
+
+int * makelist(int i);
+int * mergelist(int *l1,int *l2);
+int * backpatch(int *lis, int i);
 // quad(op=MINUS,type=BIN,$$->name,$1->name,$1->name)
 /*
 char print_operator(opcodeType op) {
