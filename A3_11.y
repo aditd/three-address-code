@@ -17,7 +17,7 @@ int quadPtr = 0;
 %union {                 
     int intval;
     struct symtab *symp;    /* 2 */
-    boolean boo;
+    boo buly;
 }
 
 
@@ -44,7 +44,7 @@ int quadPtr = 0;
 %type <symp> unary_expression
 %type <symp> multiplicative_expression
 %type <symp> additive_expression
-%type <boo> relational_expression
+%type <buly> relational_expression
 %start translation_unit
 
 %%
@@ -355,7 +355,7 @@ char *arg2) // Arg 2
     qt.op = operator;
     qArray[quadPtr] = &qt;
     /* Assignment with Binary operator */
-    printf("\t%d: %s = %s %c %s\n",quadPtr,qArray[quadPtr]->result, qArray[quadPtr]->arg1, print_operator(qArray[quadPtr]->op), qArray[quadPtr]->arg2);
+    printf("\t%d: %s = %s %s %s\n",quadPtr,qArray[quadPtr]->result, qArray[quadPtr]->arg1, print_operator(qArray[quadPtr]->op), qArray[quadPtr]->arg2);
     return qt;
 
 }
@@ -380,7 +380,7 @@ quad emit_jump_cond(char *left, opcodeType operator,char *right, char *go) // Op
     qt.op = operator;
     qt.result = go;
     qArray[quadPtr] = &qt;
-    printf("\t%d: if %s %c %s goto  %s\n",quadPtr, qt.arg1, print_operator(qt.op)  qt.result);
+    printf("\t%d: if %s %s %s goto  %s\n",quadPtr, qt.arg1, print_operator(qt.op),  qt.result);
     return qt;
     
 }
@@ -394,7 +394,7 @@ quad emit_un(char *result, char *arg1, opcodeType operator) // Operator
     qt.arg1 = arg1;
     qt.op = operator;
     qArray[quadPtr] = &qt;
-    printf("\t%d: %s = %c %s\n",quadPtr, qt.result, print_operator(op), arg1);
+    printf("\t%d: %s = %s %s\n",quadPtr, qt.result, print_operator(qt.op), arg1);
     return qt;
 }
 
@@ -417,8 +417,7 @@ quad emit_assign(char *result, char *arg1)
 // i is the current quad instruction
 int * makelist(int i){
     // we are given the quad number and we need to create boolean struct
-    int arr[10];
-    arr[0] = i;
+    int arr[] = {i};
     return arr;
 }
 
@@ -426,12 +425,11 @@ int * makelist(int i){
 void backpatch(int *lis, int i){
     // we get a list with dangling exits and a line number i
     // arg2 is where the jump location is kept
-    for(int i=0;i++;i<10){
-        // if the list is empty
-        if(lis[i].Function() == 0) break;
+    int si = sizeof(lis)/sizeof(lis[0]);
+    for(int j=0;j++;j<si){
         // get the
         // get the quadLoc that we need to change
-        int quadLoc = lis[i];
+        int quadLoc = lis[j];
         // change the jump location of the quad
         sprintf(qArray[quadLoc]->arg2, "%d", i);
     }
@@ -439,70 +437,73 @@ void backpatch(int *lis, int i){
 
 int * merge_lists(int *l1,int *l2) {
     // temp array
-    int arr[10];
+    int si1 = sizeof(l1)/sizeof(l1[0]);
+    int si2 = sizeof(l2)/sizeof(l2[0]);
+
+    int siResult = si1+si2;
+    int arr[siResult];
     int x=0;
+
     // go through the whole array and add stuff
-    for(int i =0;i++;i<10){
-        if(l1[i].Function() == 0) break;
-        arr[x] = l1[i]
+    for(int i =0;i++;i<si1){
+        arr[x] = l1[i];
         x++;
     }
-    for(int i =0;i++;i<10){
-        if(l2[i].Function() == 0) break;
-        arr[x] = l2[i]
+    for(int i =0;i++;i<si2){
+        arr[x] = l2[i];
         x++;
     }
     // return the merged array
     return arr;
 }
 
-char print_operator(opcodeType op) {
+char* print_operator(opcodeType op) {
     switch (op) {
         case PLUS:
-            return '+';
+            return "+";
             break;
         case MINUS:
             //printf("-");
-            return '-';
+            return "-";
             break;
         case MULT:
             //printf("*");
-            return '*';
+            return "*";
             break;
         case DIV:
             //printf("/");
-            return '/';
+            return "/";
             break;
         case MOD:
             //printf("%");
-            return '%';
+            return "%";
             break;
         case LE:
             //printf("%");
-            return '<=';
+            return "<=";
             break;
         case GE:
             //printf("%");
-            return '>=';
+            return ">=";
             break;
         case OR:
             //printf("%");
-            return '||';
+            return "||";
             break;
         case AND:
             //printf("%");
-            return '&&';
+            return "&&";
             break;
         case LESS:
             //printf("%");
-            return '<';
+            return "<";
             break;     
         case MORE:
             //printf("%");
-            return '>';
+            return ">";
             break;
         default:
-            break
+            break;
     }
 } 
 /*

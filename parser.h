@@ -35,11 +35,12 @@ typedef struct quad {
     
 } quad;
 
-typedef struct boolean {
-    int truelist[10];
-    int falselist[10];
+
+typedef struct boo {
     int quadLoc;
-} boolean;
+    int truelist[10];
+    int falselist[10]; 
+} boo;
 
 // we can have the quad operator type set to jump
 // operatortype can be if
@@ -47,9 +48,9 @@ typedef struct boolean {
 
 int * makelist(int i);
 int * mergelist(int *l1,int *l2);
-int * backpatch(int *lis, int i);
+void backpatch(int *lis, int i);
 // quad(op=MINUS,type=BIN,$$->name,$1->name,$1->name)
-char print_operator(opcodeType op);
+char * print_operator(opcodeType op);
 
 /* Look-up Symbol Table */ 
 symboltable *symlook(char *);
