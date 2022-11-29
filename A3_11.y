@@ -112,17 +112,35 @@ emit_bin($$->name, $1->name, MINUS,$3->name);}
 
 
 
-
 relational_expression: // Left associative operators 
-additive_expression {$$=$1}|
-relational_expression '<' additive_expression {
+additive_expression '<' additive_expression {
     //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
     char *opt = "...";
-    emit_jump_cond($1->name, opcodeType operator,char *right, char *go)
+    $$.truelist = makelist(quadPtr);
+    $$.falselist = makelist(quadPtr+1)
+    emit_jump_cond($1->name, LESS,$3->name, opt)
     emit_jump($1->name);}|
-relational_expression '>' additive_expression |
-relational_expression LE_OP additive_expression |
-relational_expression GE_OP additive_expression 
+additive_expression '>' additive_expression {
+    //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
+    char *opt = "...";
+    $$.truelist = makelist(quadPtr);
+    $$.falselist = makelist(quadPtr+1)
+    emit_jump_cond($1->name, MORE,$3->name, opt)
+    emit_jump($1->name);}|
+additive_expression LE_OP additive_expression {
+    //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
+    char *opt = "...";
+    $$.truelist = makelist(quadPtr);
+    $$.falselist = makelist(quadPtr+1)
+    emit_jump_cond($1->name, LE,$3->name, opt)
+    emit_jump($1->name);}|
+additive_expression GE_OP additive_expression {
+    //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
+    char *opt = "...";
+    $$.truelist = makelist(quadPtr);
+    $$.falselist = makelist(quadPtr+1)
+    emit_jump_cond($1->name, GE,$3->name, opt)
+    emit_jump($1->name);}
 ;
 
 
