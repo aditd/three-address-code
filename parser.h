@@ -30,23 +30,20 @@ typedef struct quad {
     char * result; 
     char * arg1; // this can take the place of the relop thing for conditional jump
     char * arg2; // this can be the jumpto location. the exit for jump
-    // ONLY arg1 and result are there if COPY
-    // ONLY arg1, op and result are there if UNARY
-    
 } quad;
 
 
-typedef struct boo {
+struct boo {
     int quadLoc;
     int truelist[10];
     int falselist[10]; 
-} boo;
+};
 
 // we can have the quad operator type set to jump
 // operatortype can be if
 // for if, have the arg
 
-int * makelist(int i);
+void makelist(int* arr,int i);
 int * mergelist(int *l1,int *l2);
 void backpatch(int *lis, int i);
 // quad(op=MINUS,type=BIN,$$->name,$1->name,$1->name)
@@ -62,4 +59,6 @@ symboltable *gentemp();
 quad emit_bin(char *result, char *arg1,opcodeType operator, char *arg2);
 quad emit_assign(char *result, char *arg1);
 quad emit_un(char *result, char *arg1, opcodeType operator);
+quad emit_jump(char *go);
+quad emit_jump_cond(char *left, opcodeType operator,char *right, char *go);
 #endif // __PARSER_H

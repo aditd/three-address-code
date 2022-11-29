@@ -16,8 +16,8 @@ int quadPtr = 0;
 
 %union {                 
     int intval;
-    struct symtab *symp;    /* 2 */
-    boo buly;
+    struct symtab *symp;
+    struct boo *buly;
 }
 
 
@@ -116,30 +116,30 @@ relational_expression: // Left associative operators
 additive_expression '<' additive_expression {
     //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
     char *opt = "...";
-    $$.truelist = makelist(quadPtr);
-    $$.falselist = makelist(quadPtr+1)
-    emit_jump_cond($1->name, LESS,$3->name, opt)
+    makelist($$->truelist,quadPtr);
+    makelist($$->falselist,quadPtr+1);
+    emit_jump_cond($1->name, LESS,$3->name, opt);
     emit_jump($1->name);}|
 additive_expression '>' additive_expression {
     //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
     char *opt = "...";
-    $$.truelist = makelist(quadPtr);
-    $$.falselist = makelist(quadPtr+1)
-    emit_jump_cond($1->name, MORE,$3->name, opt)
+    makelist($$->truelist,quadPtr);
+    makelist($$->falselist,quadPtr+1);
+    emit_jump_cond($1->name, MORE,$3->name, opt);
     emit_jump($1->name);}|
 additive_expression LE_OP additive_expression {
     //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
     char *opt = "...";
-    $$.truelist = makelist(quadPtr);
-    $$.falselist = makelist(quadPtr+1)
-    emit_jump_cond($1->name, LE,$3->name, opt)
+    makelist($$->truelist,quadPtr);
+    makelist($$->falselist,quadPtr+1);
+    emit_jump_cond($1->name, LE,$3->name, opt);
     emit_jump($1->name);}|
 additive_expression GE_OP additive_expression {
     //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
     char *opt = "...";
-    $$.truelist = makelist(quadPtr);
-    $$.falselist = makelist(quadPtr+1)
-    emit_jump_cond($1->name, GE,$3->name, opt)
+    makelist($$->truelist,quadPtr);
+    makelist($$->falselist,quadPtr+1);
+    emit_jump_cond($1->name, GE,$3->name, opt);
     emit_jump($1->name);}
 ;
 
@@ -413,23 +413,33 @@ quad emit_assign(char *result, char *arg1)
     printf("\t%d: %s = %s\n",quadPtr,qArray[quadPtr]->result, qArray[quadPtr]->arg1);
     return qt;
 }
+/*
+ BOOLEAN FUNCTION
+*/
+
+
+
 
 // i is the current quad instruction
-int * makelist(int i){
+void makelist(int* arr, int i){
     // we are given the quad number and we need to create boolean struct
-    int arr[] = {i};
-    return arr;
+    arr[0] = i;
+    for(int x=1;x++;x<10){
+        arr[x] =0;
+    }
+    //return arr;
 }
 
 
 void backpatch(int *lis, int i){
     // we get a list with dangling exits and a line number i
     // arg2 is where the jump location is kept
-    int si = sizeof(lis)/sizeof(lis[0]);
-    for(int j=0;j++;j<si){
+    //int si = sizeof(lis)/sizeof(lis[0]);
+    for(int j=0;j++;j<10){
         // get the
         // get the quadLoc that we need to change
         int quadLoc = lis[j];
+        if (quadLoc==0) break;
         // change the jump location of the quad
         sprintf(qArray[quadLoc]->arg2, "%d", i);
     }
@@ -437,25 +447,32 @@ void backpatch(int *lis, int i){
 
 int * merge_lists(int *l1,int *l2) {
     // temp array
-    int si1 = sizeof(l1)/sizeof(l1[0]);
-    int si2 = sizeof(l2)/sizeof(l2[0]);
+    //int si1 = sizeof(l1)/sizeof(l1[0]);
+    //int si2 = sizeof(l2)/sizeof(l2[0]);
 
-    int siResult = si1+si2;
-    int arr[siResult];
+    //int siResult = si1+si2;
+    int arr[10];
     int x=0;
 
     // go through the whole array and add stuff
-    for(int i =0;i++;i<si1){
+    for(int i =0;i++;i<10){
+        if (l1[i]==0) break;
         arr[x] = l1[i];
         x++;
     }
-    for(int i =0;i++;i<si2){
+    for(int i =0;i++;i<10){
+        if (l2[i]==0) break;
         arr[x] = l2[i];
         x++;
     }
     // return the merged array
     return arr;
 }
+
+
+
+
+
 
 char* print_operator(opcodeType op) {
     switch (op) {
