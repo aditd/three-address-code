@@ -56,7 +56,7 @@ WS  [ \t\v\n\f\r]
 {RETURN}                {return RETURN;}
 {TYPEDEF}               {return TYPEDEF;}
 
-{SNOPT}                 {yylval.symp = symlook(yytext); return I_CONSTANT;}
+{SNOPT}                 {yylval.intval = atoi(yytext); return I_CONSTANT;}
 {CHARCONST}             {return C_CONSTANT; } // print constant
 {STRLIT}                {return STRING_LIT; } // print string literal //{PUNC}       { printf("<PUNCTUATOR, %s>\n", yytext);     } // print punctuators
 

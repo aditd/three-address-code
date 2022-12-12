@@ -60,7 +60,8 @@ int quadPtr = 0;
 primary_expression:
 IDENTIFIER { $$ = $1;}| // Simple identifier  // Integer or character constant string-literal this wILLL BE PROBLEM
 STRING_LIT |
-I_CONSTANT { $$->name = $1->name;} |
+I_CONSTANT { $$=gentemp(); char str[10];
+sprintf(str, "%d", $1);emit_assign($$->name, str);} |
 C_CONSTANT |
 '(' expression ')'
 ;
@@ -90,6 +91,12 @@ postfix_expression {$$ = $1;}|
 unary_operator unary_expression 
 ;
 
+/*
+create a binary quad
+
+there  is a 
+*/
+
 multiplicative_expression: // Left associative operators 
 unary_expression {$$ = $1;}|
 multiplicative_expression '*' unary_expression {$$ = gentemp();
@@ -100,6 +107,7 @@ multiplicative_expression '%' unary_expression {$$ = gentemp();
 emit_bin($$->name, $1->name, MOD,$3->name);}
 ;
 
+
 additive_expression: // Left associative operators 
 multiplicative_expression {$$ = $1;}|
 additive_expression '+' multiplicative_expression {$$ = gentemp();
@@ -109,6 +117,20 @@ emit_bin($$->name, $1->name, MINUS,$3->name);}
 ;
 
 
+/* a relational expression can have a an additive expression on
+we can have the variables of the two things
+
+if (x+1 < t1+t0 > t1)
+
+t4 = x+1
+t3 = t1+t0
+if t4 <  t3 goto ...
+goto ...
+if t3 > t1 goto ...
+goto ...
+
+
+*/
 
 relational_expression: // Left associative operators 
 additive_expression |

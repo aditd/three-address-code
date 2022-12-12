@@ -864,7 +864,7 @@ YY_RULE_SETUP
 case 9:
 YY_RULE_SETUP
 #line 59 "A3_11.l"
-{yylval.symp = symlook(yytext); return I_CONSTANT;}
+{yylval.intval = atoi(yytext); return I_CONSTANT;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
