@@ -8,11 +8,8 @@ int main() {
     printInt(y);
     printStr(" = ");
     printInt(z);
-    if (z<y){
+    if (z<y && x<y){
         z = x + 4 *23;
-        if (x<y) {
-            int u = 3;
-        }
     }
     
 }

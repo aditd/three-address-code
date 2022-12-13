@@ -46,8 +46,11 @@ int quadPtr = 0;
 %type <symp> unary_expression
 %type <symp> multiplicative_expression
 %type <symp> additive_expression
-
+%type <intval> m
 %type <buly> relational_expression
+%type <buly> logical_AND_expression
+%type <buly> equality_expression
+%type <buly> logical_OR_expression
 %start translation_unit
 
 %%
@@ -141,46 +144,51 @@ additive_expression '<' additive_expression {
     //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
     char opt[] = "...";
     emit_jump_cond($1->name, LESS,$3->name, opt);
-    printf("q-%d",quadPtr);
-    printf("%s\n",$1->name);
+    printf("\tquadPtr is %d\n",quadPtr);
+    
+    //printf("%s\n",$1->name);
     $$->truelist =makelist(quadPtr);
-    printf("making falselist\n");
     $$->falselist=makelist(quadPtr+1);
     //print_list($$->truelist);
-    //emit_jump(opt);
+    emit_jump(opt);
     print_list($$->falselist);
     }|
 additive_expression '>' additive_expression {
-    char opt[] = "...";
+    /* char opt[] = "...";
     emit_jump_cond($1->name, MORE,$3->name, opt);
-    emit_jump(opt);}|
+    emit_jump(opt); */}|
 additive_expression LE_OP additive_expression {
-    char *opt = "...";/*
+    /* char *opt = "...";/*
     //makelist($$->truelist,quadPtr);
-    //makelist($$->falselist,quadPtr+1);*/
+    //makelist($$->falselist,quadPtr+1);*//*
     emit_jump_cond($1->name, LE,$3->name, opt);
-    emit_jump(opt);}|
+    emit_jump(opt); */}|
 additive_expression GE_OP additive_expression {
     //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
-    char *opt = "...";
+    //char *opt = "...";
     //makelist($$->truelist,quadPtr);
     //makelist($$->falselist,quadPtr+1);
-    emit_jump_cond($1->name, GE,$3->name, opt);
-    emit_jump(opt);}
+    /* emit_jump_cond($1->name, GE,$3->name, opt);
+    emit_jump(opt); */}
 ;
 
 
-M: %empty;
+m: %empty{$$ = quadPtr+1;printf("m= %d\n", $$);};
 
 equality_expression: // Left associative operators 
-relational_expression |
+relational_expression {$$ = $1;} |
 equality_expression EQ_OP relational_expression |
 equality_expression NE_OP relational_expression
 ;
 
 logical_AND_expression: // Left associative operators 
-equality_expression |
-logical_AND_expression AND_OP equality_expression
+equality_expression  {$$ = $1;} |
+logical_AND_expression AND_OP m equality_expression 
+{backpatch($1->truelist, $3);
+print_list($1->truelist);
+printf("PRINTING QUADTABLE\n%s\n",qArray[0]->result);
+//print_quadtbl();
+}
 ;
 
 logical_OR_expression: // Left associative operators 
@@ -375,77 +383,76 @@ symboltable *gentemp() {
     return symlook(str); 
 }
 
-quad emit_bin(char *result, // Result
+void emit_bin(char *result, // Result
 char *arg1, // Arg 1
 opcodeType operator, // Operator
 char *arg2) // Arg 2
 {   
     quadPtr++;
-    quad qt;
-    qt.result = result;
-    qt.arg1 = arg1;
-    qt.arg2 = arg2;
-    qt.op = operator;
-    qArray[quadPtr] = &qt;
+    quad *qt = malloc(sizeof(quad));
+    qt->result = result;
+    qt->arg1 = arg1;
+    qt->arg2 = arg2;
+    qt->op = operator;
+    qArray[quadPtr] = qt;
     /* Assignment with Binary operator */
     printf("\t%d: %s = %s %s %s\n",quadPtr,qArray[quadPtr]->result, qArray[quadPtr]->arg1, print_operator(qArray[quadPtr]->op), qArray[quadPtr]->arg2);
-    return qt;
+    //return qt;
 
 }
 
-quad emit_jump(char *go) // Operator
+void emit_jump(char *go) // Operator
 {
     quadPtr++;
-    quad qt;
-    qt.result = go;
-    qt.op = JUMP;
-    qArray[quadPtr] = &qt;
-    printf("\t%d: goto  %s\n", quadPtr, qt.result);
-    return qt;
+    quad *qt = malloc(sizeof(quad));
+    qt->result = go;
+    qt->op = JUMP;
+    qArray[quadPtr] = qt;
+    printf("\t%d: goto  %s\n", quadPtr, qArray[quadPtr]->result);
 }
 
 void emit_jump_cond(char *left, opcodeType operator,char *right, char *go) // Operator
 {
 /* Assignment with Unary operator */
     quadPtr++;
-    quad qt;
-    qt.arg1 = left;
-    qt.arg2 = right;
-    qt.op = operator;
-    qt.result = go;
-    qArray[quadPtr] = &qt;
+    quad *qt = malloc(sizeof(quad));
+    qt->arg1 = left;
+    qt->arg2 = right;
+    qt->op = operator;
+    qt->result = go;
+    qArray[quadPtr] = qt;
     printf("\t%d: if %s %s %s goto  %s\n",quadPtr, qArray[quadPtr]->arg1, print_operator(qArray[quadPtr]->op), qArray[quadPtr]->arg2, qArray[quadPtr]->result);
     //return qt;
     
 }
 
-quad emit_un(char *result, char *arg1, opcodeType operator) // Operator
+void emit_un(char *result, char *arg1, opcodeType operator) // Operator
 {
 /* Assignment with Unary operator */
     quadPtr++;
-    quad qt;
-    qt.result = result;
-    qt.arg1 = arg1;
-    qt.op = operator;
-    qArray[quadPtr] = &qt;
-    printf("\t%d: %s = %s %s\n",quadPtr, qt.result, print_operator(qt.op), arg1);
-    return qt;
+    quad *qt = malloc(sizeof(quad));
+    qt->result = result;
+    qt->arg1 = arg1;
+    qt->op = operator;
+    qArray[quadPtr] = qt;
+    printf("\t%d: %s = %s %s\n",quadPtr, qArray[quadPtr]->result, print_operator(qArray[quadPtr]->op), qArray[quadPtr]->arg1);
+    //return qt;
 }
 
 
 
 
-quad emit_assign(char *result, char *arg1)
+void emit_assign(char *result, char *arg1)
 {
     /* Simple Assignment */
     quadPtr++;
-    quad qt;
-    qt.result = result;
-    qt.arg1 = arg1;
-    qt.op = COPY;
-    qArray[quadPtr] = &qt;
+    quad *qt = malloc(sizeof(quad));
+    qt->result = result;
+    qt->arg1 = arg1;
+    qt->op = COPY;
+    qArray[quadPtr] = qt;
     printf("\t%d: %s = %s\n",quadPtr,qArray[quadPtr]->result, qArray[quadPtr]->arg1);
-    return qt;
+    //return qt;
 }
 /*
  BOOLEAN FUNCTION
@@ -460,7 +467,6 @@ list* makelist(int i){
     //int arr[10];
     list *li= malloc(sizeof(list));
     node *gen = create(i);
-    printf("node created\n");
     // gen is the address of the node
     li->head = gen;
     li->tail = gen;
@@ -485,47 +491,25 @@ node* create(int value) {
     return genesis;
 }
 
-
-
-/*
-void backpatch(int *lis, int i){
-    // we get a list with dangling exits and a line number i
-    // arg2 is where the jump location is kept
-    //int si = sizeof(lis)/sizeof(lis[0]);
-    for(int j=0;j++;j<10){
-        // get the
-        // get the quadLoc that we need to change
-        int quadLoc = lis[j];
-        if (quadLoc==0) break;
-        // change the jump location of the quad
-        sprintf(qArray[quadLoc]->arg2, "%d", i);
+void backpatch(list * li, int m){
+    printf("bacpack\n");
+    node *temp = li->head;
+    // only one node
+    if (li->head==li->tail){
+        int quadno = temp->val;
+        printf("the quad number to be changed is %d\n",quadno);
+        printf("current jump is %s\n",qArray[quadno]->result);
+        //printf("\t%d: if %s %s %s goto  %s (backpatched)\n",quadno, qArray[quadno]->arg1, print_operator(qArray[quadno]->op), qArray[quadno]->arg2, qArray[quadno]->result);
+    } else {
+        while(temp!=li->tail){
+            //printf("%d->",temp->val);
+            int quadno = temp->val;
+            qArray[quadno]->result = atoi(m);
+            temp = temp->next;
+            printf("\t%d: if %s %s %s goto  %s (backpatched)\n",quadno, qArray[quadno]->arg1, print_operator(qArray[quadno]->op), qArray[quadno]->arg2, qArray[quadno]->result);
+        }
     }
 }
-
-int * merge_lists(int *l1,int *l2) {
-    // temp array
-    //int si1 = sizeof(l1)/sizeof(l1[0]);
-    //int si2 = sizeof(l2)/sizeof(l2[0]);
-
-    //int siResult = si1+si2;
-    int arr[10];
-    int x=0;
-
-    // go through the whole array and add stuff
-    for(int i =0;i++;i<10){
-        if (l1[i]==0) break;
-        arr[x] = l1[i];
-        x++;
-    }
-    for(int i =0;i++;i<10){
-        if (l2[i]==0) break;
-        arr[x] = l2[i];
-        x++;
-    }
-    // return the merged array
-    return arr;
-}
-*/
 
 
 void print_list(list * li){
@@ -589,11 +573,24 @@ char* print_operator(opcodeType op) {
             break;
     }
 } 
-/*
-void yyerror(char *s) { printf ("error %s\n", s);
-}
 
-int main() {
-    yyparse(); 
+// you will need to handle unary operators
+void print_quadtbl() {
+    int i =0;
+    printf("\t%d: %s",qArray[i]->result);
+    /* for(int i=0;i<NSYMS;i++){
+        //quad *qp = qArray[i];
+        if (PLUS<= qArray[i]->op <= DIV) {
+            printf("\t%d: %s = %s %s %s\n",i,qArray[i]->result, qArray[i]->arg1, print_operator(qArray[i]->op), qArray[i]->arg2);
+        } else if (DIV < qArray[i]->op <=GE) {
+            printf("\t%d: if %s %s %s goto  %s\n",i, qArray[i]->arg1, print_operator(qArray[i]->op), qArray[i]->arg2, qArray[i]->result);
+        } else if (qArray[i]->op == JUMP) {
+            printf("\t%d: goto  %s\n", i, qArray[i]->result);
+        } else if (qArray[i]->op == COPY) {
+            printf("\t%d: %s = %s\n",i,qArray[i]->result, qArray[i]->arg1);
+        } else {
+            printf("\n");
+        }
+    } */
+    
 }
-*/
