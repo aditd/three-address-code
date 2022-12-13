@@ -46,10 +46,10 @@ Grammar
    27                    | additive_expression '-' multiplicative_expression
 
    28 relational_expression: additive_expression
-   29                      | relational_expression '<' additive_expression
-   30                      | relational_expression '>' additive_expression
-   31                      | relational_expression LE_OP additive_expression
-   32                      | relational_expression GE_OP additive_expression
+   29                      | additive_expression '<' additive_expression
+   30                      | additive_expression '>' additive_expression
+   31                      | additive_expression LE_OP additive_expression
+   32                      | additive_expression GE_OP additive_expression
 
    33 equality_expression: relational_expression
    34                    | equality_expression EQ_OP relational_expression
@@ -218,7 +218,7 @@ Nonterminals, with rules where they appear
         on right: 26 27 28 29 30 31 32
     relational_expression <buly> (51)
         on left: 28 29 30 31 32
-        on right: 29 30 31 32 33 34 35
+        on right: 33 34 35
     equality_expression (52)
         on left: 33 34 35
         on right: 34 35 36 37
@@ -710,25 +710,24 @@ State 37
    26 additive_expression: additive_expression . '+' multiplicative_expression
    27                    | additive_expression . '-' multiplicative_expression
    28 relational_expression: additive_expression .
+   29                      | additive_expression . '<' additive_expression
+   30                      | additive_expression . '>' additive_expression
+   31                      | additive_expression . LE_OP additive_expression
+   32                      | additive_expression . GE_OP additive_expression
 
-    '+'  shift, and go to state 61
-    '-'  shift, and go to state 62
+    LE_OP  shift, and go to state 61
+    GE_OP  shift, and go to state 62
+    '+'    shift, and go to state 63
+    '-'    shift, and go to state 64
+    '<'    shift, and go to state 65
+    '>'    shift, and go to state 66
 
     $default  reduce using rule 28 (relational_expression)
 
 
 State 38
 
-   29 relational_expression: relational_expression . '<' additive_expression
-   30                      | relational_expression . '>' additive_expression
-   31                      | relational_expression . LE_OP additive_expression
-   32                      | relational_expression . GE_OP additive_expression
    33 equality_expression: relational_expression .
-
-    LE_OP  shift, and go to state 63
-    GE_OP  shift, and go to state 64
-    '<'    shift, and go to state 65
-    '>'    shift, and go to state 66
 
     $default  reduce using rule 33 (equality_expression)
 
@@ -1072,6 +1071,52 @@ State 60
 
 State 61
 
+   31 relational_expression: additive_expression LE_OP . additive_expression
+
+    IDENTIFIER  shift, and go to state 22
+    STRING_LIT  shift, and go to state 23
+    C_CONSTANT  shift, and go to state 24
+    I_CONSTANT  shift, and go to state 25
+    '('         shift, and go to state 26
+    '&'         shift, and go to state 27
+    '*'         shift, and go to state 28
+    '+'         shift, and go to state 29
+    '-'         shift, and go to state 30
+    '!'         shift, and go to state 31
+
+    primary_expression         go to state 32
+    postfix_expression         go to state 33
+    unary_operator             go to state 34
+    unary_expression           go to state 102
+    multiplicative_expression  go to state 36
+    additive_expression        go to state 103
+
+
+State 62
+
+   32 relational_expression: additive_expression GE_OP . additive_expression
+
+    IDENTIFIER  shift, and go to state 22
+    STRING_LIT  shift, and go to state 23
+    C_CONSTANT  shift, and go to state 24
+    I_CONSTANT  shift, and go to state 25
+    '('         shift, and go to state 26
+    '&'         shift, and go to state 27
+    '*'         shift, and go to state 28
+    '+'         shift, and go to state 29
+    '-'         shift, and go to state 30
+    '!'         shift, and go to state 31
+
+    primary_expression         go to state 32
+    postfix_expression         go to state 33
+    unary_operator             go to state 34
+    unary_expression           go to state 102
+    multiplicative_expression  go to state 36
+    additive_expression        go to state 104
+
+
+State 63
+
    26 additive_expression: additive_expression '+' . multiplicative_expression
 
     IDENTIFIER  shift, and go to state 22
@@ -1089,10 +1134,10 @@ State 61
     postfix_expression         go to state 33
     unary_operator             go to state 34
     unary_expression           go to state 102
-    multiplicative_expression  go to state 103
+    multiplicative_expression  go to state 105
 
 
-State 62
+State 64
 
    27 additive_expression: additive_expression '-' . multiplicative_expression
 
@@ -1111,58 +1156,12 @@ State 62
     postfix_expression         go to state 33
     unary_operator             go to state 34
     unary_expression           go to state 102
-    multiplicative_expression  go to state 104
-
-
-State 63
-
-   31 relational_expression: relational_expression LE_OP . additive_expression
-
-    IDENTIFIER  shift, and go to state 22
-    STRING_LIT  shift, and go to state 23
-    C_CONSTANT  shift, and go to state 24
-    I_CONSTANT  shift, and go to state 25
-    '('         shift, and go to state 26
-    '&'         shift, and go to state 27
-    '*'         shift, and go to state 28
-    '+'         shift, and go to state 29
-    '-'         shift, and go to state 30
-    '!'         shift, and go to state 31
-
-    primary_expression         go to state 32
-    postfix_expression         go to state 33
-    unary_operator             go to state 34
-    unary_expression           go to state 102
-    multiplicative_expression  go to state 36
-    additive_expression        go to state 105
-
-
-State 64
-
-   32 relational_expression: relational_expression GE_OP . additive_expression
-
-    IDENTIFIER  shift, and go to state 22
-    STRING_LIT  shift, and go to state 23
-    C_CONSTANT  shift, and go to state 24
-    I_CONSTANT  shift, and go to state 25
-    '('         shift, and go to state 26
-    '&'         shift, and go to state 27
-    '*'         shift, and go to state 28
-    '+'         shift, and go to state 29
-    '-'         shift, and go to state 30
-    '!'         shift, and go to state 31
-
-    primary_expression         go to state 32
-    postfix_expression         go to state 33
-    unary_operator             go to state 34
-    unary_expression           go to state 102
-    multiplicative_expression  go to state 36
-    additive_expression        go to state 106
+    multiplicative_expression  go to state 106
 
 
 State 65
 
-   29 relational_expression: relational_expression '<' . additive_expression
+   29 relational_expression: additive_expression '<' . additive_expression
 
     IDENTIFIER  shift, and go to state 22
     STRING_LIT  shift, and go to state 23
@@ -1185,7 +1184,7 @@ State 65
 
 State 66
 
-   30 relational_expression: relational_expression '>' . additive_expression
+   30 relational_expression: additive_expression '>' . additive_expression
 
     IDENTIFIER  shift, and go to state 22
     STRING_LIT  shift, and go to state 23
@@ -1636,6 +1635,30 @@ State 102
 
 State 103
 
+   26 additive_expression: additive_expression . '+' multiplicative_expression
+   27                    | additive_expression . '-' multiplicative_expression
+   31 relational_expression: additive_expression LE_OP additive_expression .
+
+    '+'  shift, and go to state 63
+    '-'  shift, and go to state 64
+
+    $default  reduce using rule 31 (relational_expression)
+
+
+State 104
+
+   26 additive_expression: additive_expression . '+' multiplicative_expression
+   27                    | additive_expression . '-' multiplicative_expression
+   32 relational_expression: additive_expression GE_OP additive_expression .
+
+    '+'  shift, and go to state 63
+    '-'  shift, and go to state 64
+
+    $default  reduce using rule 32 (relational_expression)
+
+
+State 105
+
    22 multiplicative_expression: multiplicative_expression . '*' unary_expression
    23                          | multiplicative_expression . '/' unary_expression
    24                          | multiplicative_expression . '%' unary_expression
@@ -1648,7 +1671,7 @@ State 103
     $default  reduce using rule 26 (additive_expression)
 
 
-State 104
+State 106
 
    22 multiplicative_expression: multiplicative_expression . '*' unary_expression
    23                          | multiplicative_expression . '/' unary_expression
@@ -1662,38 +1685,14 @@ State 104
     $default  reduce using rule 27 (additive_expression)
 
 
-State 105
-
-   26 additive_expression: additive_expression . '+' multiplicative_expression
-   27                    | additive_expression . '-' multiplicative_expression
-   31 relational_expression: relational_expression LE_OP additive_expression .
-
-    '+'  shift, and go to state 61
-    '-'  shift, and go to state 62
-
-    $default  reduce using rule 31 (relational_expression)
-
-
-State 106
-
-   26 additive_expression: additive_expression . '+' multiplicative_expression
-   27                    | additive_expression . '-' multiplicative_expression
-   32 relational_expression: relational_expression GE_OP additive_expression .
-
-    '+'  shift, and go to state 61
-    '-'  shift, and go to state 62
-
-    $default  reduce using rule 32 (relational_expression)
-
-
 State 107
 
    26 additive_expression: additive_expression . '+' multiplicative_expression
    27                    | additive_expression . '-' multiplicative_expression
-   29 relational_expression: relational_expression '<' additive_expression .
+   29 relational_expression: additive_expression '<' additive_expression .
 
-    '+'  shift, and go to state 61
-    '-'  shift, and go to state 62
+    '+'  shift, and go to state 63
+    '-'  shift, and go to state 64
 
     $default  reduce using rule 29 (relational_expression)
 
@@ -1702,42 +1701,24 @@ State 108
 
    26 additive_expression: additive_expression . '+' multiplicative_expression
    27                    | additive_expression . '-' multiplicative_expression
-   30 relational_expression: relational_expression '>' additive_expression .
+   30 relational_expression: additive_expression '>' additive_expression .
 
-    '+'  shift, and go to state 61
-    '-'  shift, and go to state 62
+    '+'  shift, and go to state 63
+    '-'  shift, and go to state 64
 
     $default  reduce using rule 30 (relational_expression)
 
 
 State 109
 
-   29 relational_expression: relational_expression . '<' additive_expression
-   30                      | relational_expression . '>' additive_expression
-   31                      | relational_expression . LE_OP additive_expression
-   32                      | relational_expression . GE_OP additive_expression
    34 equality_expression: equality_expression EQ_OP relational_expression .
-
-    LE_OP  shift, and go to state 63
-    GE_OP  shift, and go to state 64
-    '<'    shift, and go to state 65
-    '>'    shift, and go to state 66
 
     $default  reduce using rule 34 (equality_expression)
 
 
 State 110
 
-   29 relational_expression: relational_expression . '<' additive_expression
-   30                      | relational_expression . '>' additive_expression
-   31                      | relational_expression . LE_OP additive_expression
-   32                      | relational_expression . GE_OP additive_expression
    35 equality_expression: equality_expression NE_OP relational_expression .
-
-    LE_OP  shift, and go to state 63
-    GE_OP  shift, and go to state 64
-    '<'    shift, and go to state 65
-    '>'    shift, and go to state 66
 
     $default  reduce using rule 35 (equality_expression)
 

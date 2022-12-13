@@ -46,6 +46,7 @@ int quadPtr = 0;
 %type <symp> unary_expression
 %type <symp> multiplicative_expression
 %type <symp> additive_expression
+
 %type <buly> relational_expression
 %start translation_unit
 
@@ -61,7 +62,7 @@ primary_expression:
 IDENTIFIER { $$ = $1;}| // Simple identifier  // Integer or character constant string-literal this wILLL BE PROBLEM
 STRING_LIT |
 I_CONSTANT { $$=gentemp(); char str[10];
-sprintf(str, "%d", $1);emit_assign($$->name, str);} |
+sprintf(str, "%d", $1); emit_assign($$->name, str);} |
 C_CONSTANT |
 '(' expression ')'
 ;
@@ -95,6 +96,8 @@ unary_operator unary_expression
 create a binary quad
 
 there  is a 
+
+multiplicative expression can have a variable thingy
 */
 
 multiplicative_expression: // Left associative operators 
@@ -134,34 +137,36 @@ goto ...
 
 relational_expression: // Left associative operators 
 additive_expression |
-relational_expression '<' additive_expression {
+additive_expression '<' additive_expression {
+    //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
+    char opt[] = "...";
+    emit_jump_cond($1->name, LESS,$3->name, opt);
+    printf("q-%d",quadPtr);
+    printf("%s\n",$1->name);
+    for(int i=0;i<10;i++) { $$->truelist[i]=0; printf("%d---%d\n",i, $$->truelist[i]);}
+    }|
+additive_expression '>' additive_expression {
+    char opt[] = "...";
     //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
     //char *opt = "...";
     //makelist($$->truelist,quadPtr);
     //makelist($$->falselist,quadPtr+1);
-    //emit_jump_cond($1->name, LESS,$3->name, opt);
-    /*emit_jump($1->name);*/}|
-relational_expression '>' additive_expression {
+    emit_jump_cond($1->name, MORE,$3->name, opt);
+    emit_jump(opt);}|
+additive_expression LE_OP additive_expression {
     //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
-    //char *opt = "...";
+    char *opt = "...";/*
     //makelist($$->truelist,quadPtr);
-    //makelist($$->falselist,quadPtr+1);
-    /*emit_jump_cond($1->name, MORE,$3->name, opt);
-    emit_jump($1->name);*/}|
-relational_expression LE_OP additive_expression {
-    //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
-    /*char *opt = "...";
-    //makelist($$->truelist,quadPtr);
-    //makelist($$->falselist,quadPtr+1);
+    //makelist($$->falselist,quadPtr+1);*/
     emit_jump_cond($1->name, LE,$3->name, opt);
-    emit_jump($1->name);*/}|
-relational_expression GE_OP additive_expression {
-    /* //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
+    emit_jump(opt);}|
+additive_expression GE_OP additive_expression {
+    //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
     char *opt = "...";
     //makelist($$->truelist,quadPtr);
     //makelist($$->falselist,quadPtr+1);
     emit_jump_cond($1->name, GE,$3->name, opt);
-    emit_jump($1->name); */}
+    emit_jump(opt);}
 ;
 
 
@@ -293,7 +298,7 @@ expression
 ;
 
 expression_statement:
-expressionopt ';' {printf("expression statement\n\n");}
+expressionopt ';'
 ;
 
 selection_statement:
@@ -393,10 +398,11 @@ quad emit_jump(char *go) // Operator
     qt.result = go;
     qt.op = JUMP;
     qArray[quadPtr] = &qt;
+    printf("\t%d: goto  %s\n", quadPtr, qt.result);
     return qt;
 }
 
-quad emit_jump_cond(char *left, opcodeType operator,char *right, char *go) // Operator
+void emit_jump_cond(char *left, opcodeType operator,char *right, char *go) // Operator
 {
 /* Assignment with Unary operator */
     quadPtr++;
@@ -406,8 +412,8 @@ quad emit_jump_cond(char *left, opcodeType operator,char *right, char *go) // Op
     qt.op = operator;
     qt.result = go;
     qArray[quadPtr] = &qt;
-    printf("\t%d: if %s %s %s goto  %s\n",quadPtr, qt.arg1, print_operator(qt.op),  qt.result);
-    return qt;
+    printf("\t%d: if %s %s %s goto  %s\n",quadPtr, qArray[quadPtr]->arg1, print_operator(qArray[quadPtr]->op), qArray[quadPtr]->arg2, qArray[quadPtr]->result);
+    //return qt;
     
 }
 
@@ -447,13 +453,10 @@ quad emit_assign(char *result, char *arg1)
 
 
 // i is the current quad instruction
-void makelist(int* arr, int i){
+void makelist(int *arr, int i){
     // we are given the quad number and we need to create boolean struct
-    arr[0] = i;
-    for(int x=1;x++;x<10){
-        arr[x] =0;
-    }
-    //return arr;
+    //int arr[10];
+    arr[0]=i;
 }
 
 
