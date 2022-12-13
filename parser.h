@@ -33,22 +33,32 @@ typedef struct quad {
 } quad;
 
 
+typedef struct _node {
+    int val;
+    struct node * next;
+} node;
+
+typedef struct _list {
+    node * head;
+    node * tail;
+} list;
+
 struct boo {
-    int quadLoc;
-    int truelist[10];
-    int falselist[10];
+    list * truelist;
+    list * falselist;
 };
 
 // we can have the quad operator type set to jump
 // operatortype can be if
 // for if, have the arg
 
-void makelist(int *arr,int i);
-int * mergelist(int *l1,int *l2);
+list* makelist(int i);
+void print_list(list * li);
+list * merge_lists(list *l1, list *l2);
 void backpatch(int *lis, int i);
 // quad(op=MINUS,type=BIN,$$->name,$1->name,$1->name)
 char * print_operator(opcodeType op);
-
+node* create(int value);
 /* Look-up Symbol Table */ 
 symboltable *symlook(char *);
 /* Generate temporary variable */ 

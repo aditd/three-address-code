@@ -143,18 +143,18 @@ additive_expression '<' additive_expression {
     emit_jump_cond($1->name, LESS,$3->name, opt);
     printf("q-%d",quadPtr);
     printf("%s\n",$1->name);
-    for(int i=0;i<10;i++) { $$->truelist[i]=0; printf("%d---%d\n",i, $$->truelist[i]);}
+    $$->truelist =makelist(quadPtr);
+    printf("making falselist\n");
+    $$->falselist=makelist(quadPtr+1);
+    //print_list($$->truelist);
+    //emit_jump(opt);
+    print_list($$->falselist);
     }|
 additive_expression '>' additive_expression {
     char opt[] = "...";
-    //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
-    //char *opt = "...";
-    //makelist($$->truelist,quadPtr);
-    //makelist($$->falselist,quadPtr+1);
     emit_jump_cond($1->name, MORE,$3->name, opt);
     emit_jump(opt);}|
 additive_expression LE_OP additive_expression {
-    //char *x=$1->name;strcpy(x,"<");strcpy(x,$3->name);// // the relational expression is x  a<b or somethin like t00 < a
     char *opt = "...";/*
     //makelist($$->truelist,quadPtr);
     //makelist($$->falselist,quadPtr+1);*/
@@ -169,6 +169,8 @@ additive_expression GE_OP additive_expression {
     emit_jump(opt);}
 ;
 
+
+M: %empty;
 
 equality_expression: // Left associative operators 
 relational_expression |
@@ -453,13 +455,39 @@ quad emit_assign(char *result, char *arg1)
 
 
 // i is the current quad instruction
-void makelist(int *arr, int i){
+list* makelist(int i){
     // we are given the quad number and we need to create boolean struct
     //int arr[10];
-    arr[0]=i;
+    list *li= malloc(sizeof(list));
+    node *gen = create(i);
+    printf("node created\n");
+    // gen is the address of the node
+    li->head = gen;
+    li->tail = gen;
+    return li;
+}
+
+list * merge_lists(list *l1, list *l2) {
+    list *li = malloc(sizeof(list));
+    li->head = l1->head;
+    l1->tail = l2->head;
+    li->tail = l2->tail;
+    free(l1);
+    free(l2);
+
+    return li;
+}
+
+node* create(int value) {
+    node *genesis = malloc(sizeof(node));
+    genesis->val= value;
+    genesis->next = NULL;
+    return genesis;
 }
 
 
+
+/*
 void backpatch(int *lis, int i){
     // we get a list with dangling exits and a line number i
     // arg2 is where the jump location is kept
@@ -497,10 +525,19 @@ int * merge_lists(int *l1,int *l2) {
     // return the merged array
     return arr;
 }
+*/
 
 
-
-
+void print_list(list * li){
+    printf("printing list\n");
+    node *temp = li->head;
+    //printf("head %d->",temp->val);
+    while(temp!=li->tail){
+        printf("%d->",temp->val);
+        temp = temp->next;
+    }
+    printf("%d\nlist has been printed\n",temp->val);
+}
 
 
 char* print_operator(opcodeType op) {
