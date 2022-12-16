@@ -9,10 +9,10 @@ void yyerror(char *s);
 #define NSYMS 20 /* max # of symbols */ 
 
 // array of symbols
-symboltable symtab[NSYMS];
+// symboltable symtab[NSYMS];
 // array of pointers to structure of objects
-quad *qArray[NSYMS];
-int quadPtr = 0;
+extern quad *qArray[NSYMS];
+extern int quadPtr;
 %}
 
 
@@ -148,10 +148,10 @@ additive_expression '<' additive_expression {
     
     //printf("%s\n",$1->name);
     $$->truelist =makelist(quadPtr);
-    $$->falselist=makelist(quadPtr+1);
+    $$->falselist=makelist(quadPtr+1);;
     //print_list($$->truelist);
     emit_jump(opt);
-    print_list($$->falselist);
+    //print_list($$->falselist);
     }|
 additive_expression '>' additive_expression {
     /* char opt[] = "...";
@@ -185,9 +185,9 @@ logical_AND_expression: // Left associative operators
 equality_expression  {$$ = $1;} |
 logical_AND_expression AND_OP m equality_expression 
 {backpatch($1->truelist, $3);
-print_list($1->truelist);
+//print_list($1->truelist);
 printf("PRINTING QUADTABLE\n%s\n",qArray[0]->result);
-//print_quadtbl();
+print_quadtbl();;
 }
 ;
 
@@ -349,248 +349,3 @@ declaration_list
 
 
 %%
-// return a symbol
-struct symtab * symlook(char *s){
-    char *p; 
-    struct symtab *sp;
-    // go through the symbol table array as long as the memory address of the current symbol table
-    // is less than the memory address of the last symbol in the table
-    for(sp = symtab; sp < &symtab[NSYMS]; sp++) { 
-        /* is it already here? */
-        if(sp->name && !strcmp(sp->name, s)){
-            return sp;
-        }
-        /* is it free */
-        // if there is available space then dump the name of the variable 
-        if(!sp->name) {
-            sp->name = strdup(s); 
-            return sp;
-        }
-        /* otherwise continue to next */
-    }
-    yyerror("Too many symbols");
-    exit(1);   /* cannot continue */ 
-    
-} /* symlook */
-
-/* Generate temporary variable */ 
-symboltable *gentemp() {
-    static int c = 0; /* Temp counter */ 
-    char str[10]; /* Temp name */
-    /* Generate temp name */ 
-    sprintf(str, "t%02d", c++);
-    /* Add temporary to symtab */
-    return symlook(str); 
-}
-
-void emit_bin(char *result, // Result
-char *arg1, // Arg 1
-opcodeType operator, // Operator
-char *arg2) // Arg 2
-{   
-    quadPtr++;
-    quad *qt = malloc(sizeof(quad));
-    qt->result = result;
-    qt->arg1 = arg1;
-    qt->arg2 = arg2;
-    qt->op = operator;
-    qArray[quadPtr] = qt;
-    /* Assignment with Binary operator */
-    printf("\t%d: %s = %s %s %s\n",quadPtr,qArray[quadPtr]->result, qArray[quadPtr]->arg1, print_operator(qArray[quadPtr]->op), qArray[quadPtr]->arg2);
-    //return qt;
-
-}
-
-void emit_jump(char *go) // Operator
-{
-    quadPtr++;
-    quad *qt = malloc(sizeof(quad));
-    qt->result = go;
-    qt->op = JUMP;
-    qArray[quadPtr] = qt;
-    printf("\t%d: goto  %s\n", quadPtr, qArray[quadPtr]->result);
-}
-
-void emit_jump_cond(char *left, opcodeType operator,char *right, char *go) // Operator
-{
-/* Assignment with Unary operator */
-    quadPtr++;
-    quad *qt = malloc(sizeof(quad));
-    qt->arg1 = left;
-    qt->arg2 = right;
-    qt->op = operator;
-    qt->result = go;
-    qArray[quadPtr] = qt;
-    printf("\t%d: if %s %s %s goto  %s\n",quadPtr, qArray[quadPtr]->arg1, print_operator(qArray[quadPtr]->op), qArray[quadPtr]->arg2, qArray[quadPtr]->result);
-    //return qt;
-    
-}
-
-void emit_un(char *result, char *arg1, opcodeType operator) // Operator
-{
-/* Assignment with Unary operator */
-    quadPtr++;
-    quad *qt = malloc(sizeof(quad));
-    qt->result = result;
-    qt->arg1 = arg1;
-    qt->op = operator;
-    qArray[quadPtr] = qt;
-    printf("\t%d: %s = %s %s\n",quadPtr, qArray[quadPtr]->result, print_operator(qArray[quadPtr]->op), qArray[quadPtr]->arg1);
-    //return qt;
-}
-
-
-
-
-void emit_assign(char *result, char *arg1)
-{
-    /* Simple Assignment */
-    quadPtr++;
-    quad *qt = malloc(sizeof(quad));
-    qt->result = result;
-    qt->arg1 = arg1;
-    qt->op = COPY;
-    qArray[quadPtr] = qt;
-    printf("\t%d: %s = %s\n",quadPtr,qArray[quadPtr]->result, qArray[quadPtr]->arg1);
-    //return qt;
-}
-/*
- BOOLEAN FUNCTION
-*/
-
-
-
-
-// i is the current quad instruction
-list* makelist(int i){
-    // we are given the quad number and we need to create boolean struct
-    //int arr[10];
-    list *li= malloc(sizeof(list));
-    node *gen = create(i);
-    // gen is the address of the node
-    li->head = gen;
-    li->tail = gen;
-    return li;
-}
-
-list * merge_lists(list *l1, list *l2) {
-    list *li = malloc(sizeof(list));
-    li->head = l1->head;
-    l1->tail = l2->head;
-    li->tail = l2->tail;
-    free(l1);
-    free(l2);
-
-    return li;
-}
-
-node* create(int value) {
-    node *genesis = malloc(sizeof(node));
-    genesis->val= value;
-    genesis->next = NULL;
-    return genesis;
-}
-
-void backpatch(list * li, int m){
-    printf("bacpack\n");
-    node *temp = li->head;
-    // only one node
-    if (li->head==li->tail){
-        int quadno = temp->val;
-        printf("the quad number to be changed is %d\n",quadno);
-        printf("current jump is %s\n",qArray[quadno]->result);
-        //printf("\t%d: if %s %s %s goto  %s (backpatched)\n",quadno, qArray[quadno]->arg1, print_operator(qArray[quadno]->op), qArray[quadno]->arg2, qArray[quadno]->result);
-    } else {
-        while(temp!=li->tail){
-            //printf("%d->",temp->val);
-            int quadno = temp->val;
-            qArray[quadno]->result = atoi(m);
-            temp = temp->next;
-            printf("\t%d: if %s %s %s goto  %s (backpatched)\n",quadno, qArray[quadno]->arg1, print_operator(qArray[quadno]->op), qArray[quadno]->arg2, qArray[quadno]->result);
-        }
-    }
-}
-
-
-void print_list(list * li){
-    printf("printing list\n");
-    node *temp = li->head;
-    //printf("head %d->",temp->val);
-    while(temp!=li->tail){
-        printf("%d->",temp->val);
-        temp = temp->next;
-    }
-    printf("%d\nlist has been printed\n",temp->val);
-}
-
-
-char* print_operator(opcodeType op) {
-    switch (op) {
-        case PLUS:
-            return "+";
-            break;
-        case MINUS:
-            //printf("-");
-            return "-";
-            break;
-        case MULT:
-            //printf("*");
-            return "*";
-            break;
-        case DIV:
-            //printf("/");
-            return "/";
-            break;
-        case MOD:
-            //printf("%");
-            return "%";
-            break;
-        case LE:
-            //printf("%");
-            return "<=";
-            break;
-        case GE:
-            //printf("%");
-            return ">=";
-            break;
-        case OR:
-            //printf("%");
-            return "||";
-            break;
-        case AND:
-            //printf("%");
-            return "&&";
-            break;
-        case LESS:
-            //printf("%");
-            return "<";
-            break;     
-        case MORE:
-            //printf("%");
-            return ">";
-            break;
-        default:
-            break;
-    }
-} 
-
-// you will need to handle unary operators
-void print_quadtbl() {
-    int i =0;
-    printf("\t%d: %s",qArray[i]->result);
-    /* for(int i=0;i<NSYMS;i++){
-        //quad *qp = qArray[i];
-        if (PLUS<= qArray[i]->op <= DIV) {
-            printf("\t%d: %s = %s %s %s\n",i,qArray[i]->result, qArray[i]->arg1, print_operator(qArray[i]->op), qArray[i]->arg2);
-        } else if (DIV < qArray[i]->op <=GE) {
-            printf("\t%d: if %s %s %s goto  %s\n",i, qArray[i]->arg1, print_operator(qArray[i]->op), qArray[i]->arg2, qArray[i]->result);
-        } else if (qArray[i]->op == JUMP) {
-            printf("\t%d: goto  %s\n", i, qArray[i]->result);
-        } else if (qArray[i]->op == COPY) {
-            printf("\t%d: %s = %s\n",i,qArray[i]->result, qArray[i]->arg1);
-        } else {
-            printf("\n");
-        }
-    } */
-    
-}

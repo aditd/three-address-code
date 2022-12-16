@@ -57,7 +57,7 @@ void print_list(list * li);
 list * merge_lists(list *l1, list *l2);
 void backpatch(list * li, int m);
 // quad(op=MINUS,type=BIN,$$->name,$1->name,$1->name)
-char * print_operator(opcodeType op);
+void print_operator(opcodeType op);
 node* create(int value);
 /* Look-up Symbol Table */ 
 symboltable *symlook(char *);
