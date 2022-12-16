@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "A4_11_translator.h"
 
-extern void yyerror();
+extern void yyerror(char* s);
 extern int Parse_main();
 
 // array of symbols, i.e. symboltable
@@ -108,6 +108,12 @@ void print_quad(quad* q) {
     }
 }
 
+void print_quads() {
+    for (int i = 0; i < quadPtr; i++) {
+        print_quad(qArray[i]);
+    }
+}
+
 void new_quad_binary(opType op, char* result, char* arg1, char* arg2) {
     quad* q = (quad*)malloc(sizeof(quad)); // create new quad
     // assign quad attributes
@@ -117,8 +123,6 @@ void new_quad_binary(opType op, char* result, char* arg1, char* arg2) {
     q->arg2 = strdup(arg2);
     q->index = quadPtr;
     qArray[quadPtr++] = q; // add quad to quad array and then increment index
-    // print
-    print_quad(q);
 }
 
 void new_quad_unary(opType op1, char* s1, char* s2) {
@@ -130,8 +134,6 @@ void new_quad_unary(opType op1, char* s1, char* s2) {
     q->arg2 = NULL;
     q->index = quadPtr;
     qArray[quadPtr++] = q; // add quad to quad array and then increment index
-    // print
-    print_quad(q);
 }
 
 void new_quad_conditional_jump(opType op, char* left, char* right, char* go) {
@@ -143,8 +145,6 @@ void new_quad_conditional_jump(opType op, char* left, char* right, char* go) {
     q->arg2 = strdup(right);
     q->index = quadPtr;
     qArray[quadPtr++] = q; // add quad to quad array and then increment index
-    // print
-    print_quad(q);
 }
 
 void new_quad_jump(char* go) {
@@ -156,8 +156,6 @@ void new_quad_jump(char* go) {
     q->arg2 = NULL;
     q->index = quadPtr;
     qArray[quadPtr++] = q; // add quad to quad array and then increment index
-    // print
-    print_quad(q);
 }
 
 node* create(int value) {

@@ -79,6 +79,8 @@ void print_list(list* li);
 void backpatch(list* l, int m);
 // print a quad
 void print_quad(quad* q);
+// print all quads
+void print_quads();
 // create a new quad with a binary operation
 void new_quad_binary(opType op, char* result, char* arg1, char* arg2);
 // create a new quad with a unary operation

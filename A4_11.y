@@ -6,10 +6,9 @@
     #include "A4_11_translator.h"
 
     void yyerror(char *s);
-    int Parse_main();
 
-    extern quad* qArray[NSYMS];
-    extern int quadPtr;
+    int Parse_main();
+    extern void print_quads();
     extern int yylex();
     // extern void print_quad(quad* q);
 %}
@@ -21,7 +20,7 @@
 %type <sym> expression
 
 %token <sym> IDENTIFIER
-%token <sym> I_CONSTANT
+%token <intval> I_CONSTANT
 %token C_CONSTANT
 %token STRING_LIT
 %token INT RETURN VOID TYPEDEF
@@ -57,27 +56,6 @@ expression: expression '+' expression
                                         $$ = gentemp();
                                         new_quad_binary(PLUS, $$->name, $1->name, $3->name);
                                     }
-            | expression '-' expression
-                                    {
-                                        $$ = gentemp();
-                                        new_quad_binary(MINUS, $$->name, $1->name, $3->name);
-                                    }
-            | expression '*' expression
-                                    {
-                                        $$ = gentemp();
-                                        new_quad_binary(MULT, $$->name, $1->name, $3->name);
-                                    }
-            | expression '/' expression
-                                    {
-                                        $$ = gentemp();
-                                        new_quad_binary(DIV, $$->name, $1->name, $3->name);
-                                    }
-            | '(' expression ')'    { $$ = $2; }
-            | '-' expression %prec UMINUS
-                                    {
-                                        $$ = gentemp();
-                                        new_quad_unary(UNARYMINUS, $$->name, $2->name);
-                                    }
             | I_CONSTANT            {
                                         $$ = gentemp();
                                         char num_s[10];
@@ -93,9 +71,9 @@ void yyerror(char *s){
 }
 
 int Parse_main(){
-    // for(int i = 0; i < quadPtr; i++){
-    //     print_quad(qArray[i]);
-    // }
+    yyparse();
 
-    return yyparse();
+    print_quads();
+
+    return 0;
 }
