@@ -3,7 +3,15 @@
 #include <stdlib.h>
 #include "A4_11_translator.h"
 
-extern void yyerror(char* s);
+extern void yyerror();
+extern int Parse_main();
+
+// array of symbols, i.e. symboltable
+symbol symboltable[NSYMS];
+// array of quads
+quad* qArray[NSYMS];
+// pointer to quad index
+int quadPtr = 0;
 
 symbol* symlook(char* name) {
     symbol* sp;
@@ -35,32 +43,68 @@ void print_quad(quad* q) {
     if ((q->op >= PLUS) && (q->op <= AND)) { // binary operation
         printf("[%d] %s = %s ", q->index, q->result, q->arg1);
         switch (q->op) {
-            case PLUS: printf("+"); break;
-            case MINUS: printf("-"); break;
-            case MULT: printf("*"); break;
-            case MOD: printf("%%"); break;
-            case DIV: printf("/"); break;
-            case LT: printf("<"); break;
-            case GT: printf(">"); break;
-            case LET: printf("<="); break;
-            case GET: printf(">="); break;
-            case OR: printf("||"); break;
-            case AND: printf("&&"); break;
+            case PLUS:
+                printf("+");
+                break;
+            case MINUS:
+                printf("-");
+                break;
+            case MULT:
+                printf("*");
+                break;
+            case MOD:
+                printf("%%");
+                break;
+            case DIV:
+                printf("/");
+                break;
+            case LT:
+                printf("<");
+                break;
+            case GT:
+                printf(">");
+                break;
+            case LTE:
+                printf("<=");
+                break;
+            case GTE:
+                printf(">=");
+                break;
+            case OR:
+                printf("||");
+                break;
+            case AND:
+                printf("&&");
+                break;
+            default:
+                break;
         }
         printf(" %s\n", q->arg2);
     } else if (q->op == JUMP) {
         printf("[%d] goto %s\n", q->index, q->result);
-    } else if (q->op >= JLT && q->op <= JGET) {
+    } else if (q->op >= JLT && q->op <= JGTE) {
         printf("[%d] if %s ", q->index, q->arg1);
         switch (q->op) {
-            case JLT: printf("<"); break;
-            case JGT: printf(">"); break;
-            case JLET: printf("<="); break;
-            case JGET: printf(">="); break;
+            case JLT:
+                printf("<");
+                break;
+            case JGT:
+                printf(">");
+                break;
+            case JLTE:
+                printf("<=");
+                break;
+            case JGTE:
+                printf(">=");
+                break;
+            default:
+                break;
         }
         printf(" %s goto %s\n", q->arg2, q->result);
-    } else {
+    } else if (q->op == COPY) {
         printf("[%d] %s = %s\n", q->index, q->result, q->arg1);
+    } else {
+        printf("[%d] %s = - %s\n", q->index, q->result, q->arg1);
     }
 }
 
@@ -73,6 +117,8 @@ void new_quad_binary(opType op, char* result, char* arg1, char* arg2) {
     q->arg2 = strdup(arg2);
     q->index = quadPtr;
     qArray[quadPtr++] = q; // add quad to quad array and then increment index
+    // print
+    print_quad(q);
 }
 
 void new_quad_unary(opType op1, char* s1, char* s2) {
@@ -81,9 +127,11 @@ void new_quad_unary(opType op1, char* s1, char* s2) {
     q->op = op1;
     q->result = strdup(s1);
     q->arg1 = strdup(s2);
-    q->arg2 = 0;
+    q->arg2 = NULL;
     q->index = quadPtr;
     qArray[quadPtr++] = q; // add quad to quad array and then increment index
+    // print
+    print_quad(q);
 }
 
 void new_quad_conditional_jump(opType op, char* left, char* right, char* go) {
@@ -95,6 +143,8 @@ void new_quad_conditional_jump(opType op, char* left, char* right, char* go) {
     q->arg2 = strdup(right);
     q->index = quadPtr;
     qArray[quadPtr++] = q; // add quad to quad array and then increment index
+    // print
+    print_quad(q);
 }
 
 void new_quad_jump(char* go) {
@@ -102,10 +152,12 @@ void new_quad_jump(char* go) {
     // assign quad attributes
     q->op = JUMP;
     q->result = strdup(go);
-    q->arg1 = 0;
-    q->arg2 = 0;
+    q->arg1 = NULL;
+    q->arg2 = NULL;
     q->index = quadPtr;
     qArray[quadPtr++] = q; // add quad to quad array and then increment index
+    // print
+    print_quad(q);
 }
 
 node* create(int value) {
@@ -138,7 +190,7 @@ list* merge_lists(list* l1, list* l2) {
 
 void print_list(list* l) {
     node* temp = l->head;
-    while (temp != l->tail) {
+    while (temp != l->tail) { // run until temp reaches last node
         printf("%d->", temp->val);
         temp = temp->next;
     }
@@ -158,9 +210,14 @@ void backpatch(list* l, int m) {
         while (temp != l->tail) {
             //printf("%d->",temp->val);
             int quadno = temp->val;
-            qArray[quadno]->result = atoi(m);
+            // int m to temp char*
+            sprintf(qArray[quadno]->result, "%d", m);
             temp = temp->next;
             printf("\t%d: if %s OPERATOR %d %s goto  %s (backpatched)\n", quadno, qArray[quadno]->arg1, qArray[quadno]->op, qArray[quadno]->arg2, qArray[quadno]->result);
         }
     }
+}
+
+int main(int argc, char const* argv[]) {
+    return Parse_main();
 }

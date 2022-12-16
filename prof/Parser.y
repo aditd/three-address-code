@@ -35,9 +35,9 @@ list_of_statements: list_of_statements statement
 { printrule("L -> L S"); }
 ;
 statement: NAME '=' expression ';'
-{ 
+{
 	qArray[quadPtr++] = new_quad_unary(COPY, $1->name, $3->name);
-	printrule("S -> id = E"); 
+	printrule("S -> id = E");
 }
 ;
 expression: expression '+' expression
@@ -136,13 +136,13 @@ list_of_statements: list_of_statements statement
 { printrule("L -> L S ."); }
 ;
 statement: NAME '=' expression ';'
-{ 
-	emit_copy($1->name, $3->name); 
-	printrule("S -> id = E"); 
+{
+	emit_copy($1->name, $3->name);
+	printrule("S -> id = E");
 }
 ;
 expression: expression '+' expression
-{ 
+{
 	$$ = gentemp();
 	emit_binary($$->name, $1->name, '+', $3->name);
 	printrule("E -> E + E");
@@ -158,7 +158,7 @@ expression: expression '+' expression
 	$$ = gentemp();
 	emit_binary($$->name, $1->name, '*', $3->name);
 	printrule("E -> E * E");
-} 
+}
 | expression '/' expression
 {
 	$$ = gentemp();
@@ -310,10 +310,10 @@ void printrule(char *s);
 %type <intval> term
 %type <intval> factor
 %%
-list_of_statements: marker statement '.'  
+list_of_statements: marker statement '.'
 { printrule("L -> S ."); }
 ;
-list_of_statements: list_of_statements statement '.' 
+list_of_statements: list_of_statements statement '.'
 { printrule("L -> L S ."); }
 ;
 statement: NAME '=' expression
@@ -400,11 +400,11 @@ statement_list: statement '.'  { printrule("L -> S ."); }
 	;
 statement: expression { printf("= %d\n", $1); printrule("S -> E"); }
 	;
-expression: expression '+' term 
+expression: expression '+' term
 	{ $$ = $1 + $3; printrule("E -> E + T"); };
-	| expression '-' term 
+	| expression '-' term
 	{ $$ = $1 - $3; printrule("E -> E - T"); }
-	| term 
+	| term
 	{ printrule("E -> T"); }
 	;
 
@@ -414,20 +414,20 @@ term: term '*' factor
 	{
 		if ($3 == 0)
 			yyerror("divide by zero");
-		else 
+		else
 			$$ = $1 / $3;
 		printrule("T -> T / F");
 	}
 	|
-	factor 
+	factor
 	{ printrule("T -> F"); }
 	;
 
-factor: '(' expression ')' 
+factor: '(' expression ')'
     { $$ = $2; printrule("F -> (E)"); }
-	| '-' factor 
+	| '-' factor
 	{ $$ = -$2; printrule("F -> -F"); }
-	| NUMBER 
+	| NUMBER
 	{ printrule("F -> num"); }
 	;
 %%

@@ -1,7 +1,7 @@
 %{
     /* C Declarations and Definitions */
     #include "A4_11_translator.h"
-    #include "A4_11_translator.tab.h"
+    #include "A4_11.tab.h"
     #include <stdio.h>
 %}
 
@@ -51,18 +51,18 @@ WS         [ \t\v\n\f\r]
 {CHAR}       { return CHAR;                                      }
 {RETURN}     { return RETURN;                                    }
 {TYPEDEF}    { return TYPEDEF;                                   }
-{SNOPT}      { yylval.symp = symlook(yytext); return I_CONSTANT; }
+{SNOPT}      { yylval.sym = symlook(yytext); return I_CONSTANT; }
 {CHARCONST}  { return C_CONSTANT;                                } // print constant
 {STRLIT}     { return STRING_LIT;                                } // print string literal
-{IDENTIFIER} { yylval.symp = symlook(yytext);return IDENTIFIER;  } // print identifier
+{IDENTIFIER} { yylval.sym = symlook(yytext);return IDENTIFIER;  } // print identifier
 {PUNC}       { return yytext[0];                                 }
-"&&"         { return AND_OP;                                    }
-"||"	     { return OR_OP;                                     }
-"<="	     { return LE_OP;                                     }
-">="	     { return GE_OP;                                     }
-"=="	     { return EQ_OP;                                     }
-"!="	     { return NE_OP;                                     }
-"->"         { return PTR_OP;                                    }
+"&&"         { return AND;                                    }
+"||"	     { return OR;                                     }
+"<="	     { return LTE;                                     }
+">="	     { return GTE;                                     }
+"=="	     { return EQ;                                     }
+"!="	     { return NE;                                     }
+"->"         { return PTR;                                    }
 {BLANK}      { ;                                                 } // ignore comments and whitespace
 {WS}+	     { ;                                                 } // whitespace separates tokens
 .            { ;                                                 } // discard bad characters

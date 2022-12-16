@@ -5,23 +5,27 @@
 
 // possible values for an operation
 typedef enum {
-    PLUS = 1,
+    PLUS,
     MINUS,
     MULT,
     MOD,
     DIV,
     LT,
     GT,
-    LET,
-    GET,
+    EQ,
+    NE,
+    LTE,
+    GTE,
     OR,
     AND,
     JUMP,
     JLT,
     JGT,
-    JLET,
-    JGET,
-    COPY
+    JLTE,
+    JGTE,
+    PTR,
+    COPY,
+    UNARYMINUS
 } opType;
 
 // structure of a symbol
@@ -42,7 +46,7 @@ typedef struct _quad {
 // structure of a node
 typedef struct _node {
     int val;
-    struct node* next;
+    struct _node* next;
 } node;
 
 // structure of a list
@@ -56,13 +60,6 @@ typedef struct _boolean {
     list* truelist;
     list* falselist;
 } boolean;
-
-// array of symbols, i.e. symboltable
-symbol symboltable[NSYMS];
-// array of quads
-quad* qArray[NSYMS];
-// pointer to quad index
-int quadPtr = 0;
 
 // all following functions are defined in A4_11_translator.c
 
