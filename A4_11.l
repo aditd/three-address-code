@@ -1,10 +1,10 @@
 %{
     /* C Declarations and Definitions */
-    # include "A3_11.tab.h"
-    # include <stdio.h>
-    #include "A3_11.tab.h"
-    #include "parser.h"
+    #include "A4_11_translator.h"
+    #include "A4_11_translator.tab.h"
+    #include <stdio.h>
 %}
+
 /* Regular Expression Definitions */
 /* HELPERS */
 /* all letters */
