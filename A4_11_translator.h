@@ -3,13 +3,7 @@
 #define __PARSER_H
 #define NSYMS 20
 
-// structure of a symbol
-typedef struct _symbol {
-    char* name;
-    char* value; // values saved as string to handle string, char, int
-} symbol;
-
-// possible values for an operation type
+// possible values for an operation
 typedef enum {
     PLUS = 1,
     MINUS,
@@ -30,6 +24,12 @@ typedef enum {
     COPY
 } opType;
 
+// structure of a symbol
+typedef struct _symbol {
+    char* name;
+    char* value; // values saved as string to handle string, char, int
+} symbol;
+
 // structure of a quad
 typedef struct _quad {
     opType op;
@@ -39,41 +39,56 @@ typedef struct _quad {
     char* arg2; // this can be the jumpto location. the exit for jump
 } quad;
 
+// structure of a node
 typedef struct _node {
     int val;
     struct node* next;
 } node;
 
+// structure of a list
 typedef struct _list {
     node* head;
     node* tail;
 } list;
 
-struct boolean {
+// structure of a boolean variable
+typedef struct _boolean {
     list* truelist;
     list* falselist;
-};
+} boolean;
 
-symbol symboltable[NSYMS]; // array of symbols, i.e. symboltable
-quad* qArray[NSYMS]; // array of quads
-int quadPtr = 0; // pointer to quad index
-
+// array of symbols, i.e. symboltable
+symbol symboltable[NSYMS];
+// array of quads
+quad* qArray[NSYMS];
+// pointer to quad index
+int quadPtr = 0;
 
 // all following functions are defined in A4_11_translator.c
+
+// create or find symbol with given name
 symbol* symlook(char* name);
+// generate a temporary variable
 symbol* gentemp();
-
+// create a node
 node* create(int value);
+// create a list
 list* makelist(int i);
+// merge 2 lists
 list* merge_lists(list* l1, list* l2);
-void backpatch(list* l, int m);
+// print a list
 void print_list(list* li);
-
+// backpatch
+void backpatch(list* l, int m);
+// print a quad
 void print_quad(quad* q);
+// create a new quad with a binary operation
 void new_quad_binary(opType op, char* result, char* arg1, char* arg2);
+// create a new quad with a unary operation
 void new_quad_unary(opType op, char* result, char* arg1);
+// create a new quad for a conditional jump
 void new_quad_conditional_jump(opType op, char* left, char* right, char* go);
+// create a new quad for an unconditional jump
 void new_quad_jump(char* go);
-
 
 #endif // __PARSER_H

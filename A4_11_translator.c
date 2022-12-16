@@ -5,7 +5,6 @@
 
 extern void yyerror(char* s);
 
-// find s in symbol table, if not found, add it, and return pointer to it
 symbol* symlook(char* name) {
     symbol* sp;
     for (sp = symboltable; sp < &symboltable[NSYMS]; sp++) {
@@ -25,7 +24,6 @@ symbol* symlook(char* name) {
     exit(1);
 }
 
-// generate a temporary variable and return a pointer to it
 symbol* gentemp() {
     static int c = 0; // counter for temporary variables
     char str[10]; // store name of temporary variable
@@ -33,7 +31,6 @@ symbol* gentemp() {
     return symlook(str); // add it to symbol table
 }
 
-// print given quad
 void print_quad(quad* q) {
     if ((q->op >= PLUS) && (q->op <= AND)) { // binary operation
         printf("[%d] %s = %s ", q->index, q->result, q->arg1);
@@ -67,7 +64,6 @@ void print_quad(quad* q) {
     }
 }
 
-// create new quad for binary operation
 void new_quad_binary(opType op, char* result, char* arg1, char* arg2) {
     quad* q = (quad*)malloc(sizeof(quad)); // create new quad
     // assign quad attributes
@@ -79,7 +75,6 @@ void new_quad_binary(opType op, char* result, char* arg1, char* arg2) {
     qArray[quadPtr++] = q; // add quad to quad array and then increment index
 }
 
-// create new quad for unary operation
 void new_quad_unary(opType op1, char* s1, char* s2) {
     quad* q = (quad*)malloc(sizeof(quad)); // create new quad
     // assign quad attributes
@@ -141,6 +136,15 @@ list* merge_lists(list* l1, list* l2) {
     return l1;
 }
 
+void print_list(list* l) {
+    node* temp = l->head;
+    while (temp != l->tail) {
+        printf("%d->", temp->val);
+        temp = temp->next;
+    }
+    printf("%d\n", temp->val);
+}
+
 void backpatch(list* l, int m) {
     printf("bacpack\n");
     node* temp = l->head;
@@ -159,13 +163,4 @@ void backpatch(list* l, int m) {
             printf("\t%d: if %s OPERATOR %d %s goto  %s (backpatched)\n", quadno, qArray[quadno]->arg1, qArray[quadno]->op, qArray[quadno]->arg2, qArray[quadno]->result);
         }
     }
-}
-
-void print_list(list* l) {
-    node* temp = l->head;
-    while (temp != l->tail) {
-        printf("%d->", temp->val);
-        temp = temp->next;
-    }
-    printf("%d\n", temp->val);
 }
